@@ -44,23 +44,13 @@ pnpm exec husky init
 bunx husky init
 ```
 
-## Try it
-
-Congratulations! You've successfully set up your first Git hook with just one command 🎉. 
-Let's test it:
-
-```shell
-git commit -m "Keep calm and commit"
-# test script will run every time you commit
-```
-
 ## A few words...
 
 ### Scripting
 
 * your hooks' use cases
   * run `npm run` or `npx` commands
-  * script them -- via -- POSIX shell / CUSTOM workflows
+  * 💡script them -- via -- POSIX shell / CUSTOM workflows 💡
     * _Example:_ lint your staged files | EACH commit
         ```shell
         # .husky/pre-commit
