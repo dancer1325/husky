@@ -1,110 +1,99 @@
 # How To
 
-## Adding a New Hook
+## Adding a NEW Hook
 
-Adding a hook is as simple as creating a file. This can be accomplished using your favorite editor, a script or a basic echo command. For example, on Linux/macOS:
-```shell
-echo "npm test" > .husky/pre-commit
-```
+* == creat a file | ".husky/"
 
 ## Startup files
 
-Husky allows you to execute local commands before running hooks. It reads commands from these files:
-
-- `$XDG_CONFIG_HOME/husky/init.sh`
-- `~/.config/husky/init.sh`
-- `~/.huskyrc` (deprecated)
-
-On Windows: `C:\Users\yourusername\.config\husky\init.sh`
+* | BEFORE running hooks, execute local commands / placed |
+  - `$XDG_CONFIG_HOME/husky/init.sh`
+  - `~/.config/husky/init.sh`
+  - `~/.huskyrc` (deprecated)
+  - | Windows, `C:\Users\yourusername\.config\husky\init.sh`
 
 ## Skipping Git Hooks
 
-### For a Single Command
+### / 1! Command
 
-Most Git commands include a `-n/--no-verify` option to skip hooks:
+* ways
+  * `-n/--no-verify` option
+    ```sh
+    git commit -m "..." -n # Skips Git hooks
+    ```
+    * ALLOWED |
+      * MOST Git commands  
+  * HUSKY=0 git someSpecificGitCommand
+   ```shell
+   HUSKY=0 git ... # Temporarily disables all Git hooks
+   git ... # Hooks will run again
+   ```
 
-```sh
-git commit -m "..." -n # Skips Git hooks
-```
+### / MULTIPLE commands
 
-For commands without this flag, disable hooks temporarily with HUSKY=0:
+* use case
+  * | extended period (e.g., during rebase/merge)
+   ```shell
+   export HUSKY=0 # Disables ALL Git hooks
+   git ...
+   git ...
+   unset HUSKY # Re-enables hooks
+   ```
 
-```shell
-HUSKY=0 git ... # Temporarily disables all Git hooks
-git ... # Hooks will run again
-```
+### / GUI
 
-### For multiple commands
+* |GUI client
+  ```sh
+  # ~/.config/husky/init.sh
+  export HUSKY=0 # Husky won't install and won't run hooks on your machine
+  ```
 
-To disable hooks for an extended period (e.g., during rebase/merge):
+## CI server & Docker
 
-```shell
-export HUSKY=0 # Disables all Git hooks
-git ...
-git ...
-unset HUSKY # Re-enables hooks
-```
+* ways
+  * use `HUSKY=0
+    * _Example:_ | GitHub Actions
+      ```yml
+      # https://docs.github.com/en/actions/learn-github-actions/variables
+      env:
+        HUSKY: 0
+      ```
+    * recommended
+      * Reason: 🧠 avoid installing Git Hooks 🧠
+  * | "package.json", adjust `prepare` script 
+    ```json
+    // package.json
+    "prepare": "husky || true"
+    ```
+    * use case
+      * if installing ONLY `dependencies` (!= `devDependencies`) -> `"prepare": "husky"` script failS
+  * create `.husky/install.mjs` & use | "package.json"'s `prepare` script 
+    * use case
+      * if PREVIOUS solution, you get a `command not found` error message
+    ```js
+    // Skip Husky install in production and CI
+    if (process.env.NODE_ENV === 'production' || process.env.CI === 'true') {
+      process.exit(0)
+    }
+    const husky = (await import('husky')).default
+    console.log(husky())
+    ```
 
-### For a GUI or Globally
+    ```json
+    "prepare": "node .husky/install.mjs"
+    ```
 
-To disable Git hooks in a GUI client or globally, modify the husky config:
+## Testing Hooks -- WITHOUT -- Committing
 
-```sh
-# ~/.config/husky/init.sh
-export HUSKY=0 # Husky won't install and won't run hooks on your machine
-```
-
-## CI server and Docker
-
-To avoid installing Git Hooks on CI servers or in Docker, use `HUSKY=0`. For instance, in GitHub Actions:
-
-```yml
-# https://docs.github.com/en/actions/learn-github-actions/variables
-env:
-  HUSKY: 0
-```
-
-If installing only `dependencies` (not `devDependencies`), the `"prepare": "husky"` script may fail because Husky won't be installed.
-
-You have multiple solutions.
-
-Modify the `prepare` script to never fail:
-
-```json
-// package.json
-"prepare": "husky || true"
-```
-
-You'll still get a `command not found` error message in your output which may be confusing. To make it silent, create `.husky/install.mjs`:
-
-<!-- Since husky may not be installed, it must be imported dynamically after prod/CI check  -->
-```js
-// Skip Husky install in production and CI
-if (process.env.NODE_ENV === 'production' || process.env.CI === 'true') {
-  process.exit(0)
-}
-const husky = (await import('husky')).default
-console.log(husky())
-```
-
-Then, use it in `prepare`:
-
-```json
-"prepare": "node .husky/install.mjs"
-```
-
-## Testing Hooks Without Committing
-
-To test a hook, add `exit 1` to the hook script to abort the Git command:
-
-```shell
-# .husky/pre-commit
-
-# Your WIP script
-# ...
-
-exit 1
-```
+* | hook script, add `exit 1`
+  ```shell
+  # .husky/pre-commit
+  
+  # Your WIP script
+  # ...
+  
+  exit 1
+  ```
 
 ```shell
 git commit -m "testing pre-commit code"
@@ -113,6 +102,7 @@ git commit -m "testing pre-commit code"
 
 ## Project Not in Git Root Directory
 
+* TODO:
 Husky doesn't install in parent directories (`../`) for security reasons. However, you can change the directory in the `prepare` script.
 
 Consider this project structure:
