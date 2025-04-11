@@ -2,7 +2,7 @@
 
 ## Adding a NEW Hook
 
-* == creat a file | ".husky/"
+* 💡== creat a file | ".husky/" 💡
 
 ## Startup files
 
@@ -100,36 +100,32 @@ git commit -m "testing pre-commit code"
 # A commit will not be created
 ```
 
-## Project Not in Git Root Directory
-
-* TODO:
-Husky doesn't install in parent directories (`../`) for security reasons. However, you can change the directory in the `prepare` script.
-
-Consider this project structure:
-
-```
-.
-├── .git/
-├── backend/  # No package.json
-└── frontend/ # Package.json with husky
-```
-
-Set your prepare script like this:
-
-```json
-"prepare": "cd .. && husky frontend/.husky"
-```
-
-In your hook script, change the directory back to the relevant subdirectory:
-
-```shell
-# frontend/.husky/pre-commit
-cd frontend
-npm test
-```
+## Project's location != Git root Directory
+ 
+* _Example:_
+  ```
+  .
+  ├── .git/
+  ├── backend/  # No package.json
+  └── frontend/ # Package.json with husky
+  ```
+* steps
+  * place `prepare` script | ".husky/" placed
+    ```json
+    "prepare": "cd .. && husky frontend/.husky"
+    ```
+  * | hook script, change the directory back
+    ```shell
+    # frontend/.husky/pre-commit
+    cd frontend
+    npm test
+    ```
+* Husky can NOT be installed | parent directories (`../`)
+  * Reason: 🧠security reasons🧠
 
 ## Non-shell hooks
 
+* TODO:
 In order to run scripts that require the use of a scripting language, use the following pattern for each applicable hook:
 
 (Example using hook `pre-commit` and NodeJS)
