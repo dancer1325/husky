@@ -125,60 +125,51 @@ git commit -m "testing pre-commit code"
 
 ## Non-shell hooks
 
-* TODO:
-In order to run scripts that require the use of a scripting language, use the following pattern for each applicable hook:
-
-(Example using hook `pre-commit` and NodeJS)
-1. Create an entrypoint for the hook:
-    ```shell
-    .husky/pre-commit
-    ```
-2. In the file add the following
-    ```shell
-    node .husky/pre-commit.js
-    ```
-3. in `.husky/pre-commit.js`
-   ```javascript
-   // Your NodeJS code
-   // ...
-   ```
+* if you want to run scripts / require scripting language -> steps / EACH applicable hook
+  1. Create an entrypoint -- for the -- hook
+      ```shell, tittle=".husky/pre-commit"
+      node .husky/pre-commit.js
+      ```
+  2. | `.husky/pre-commit.js`
+     ```javascript
+     // Your NodeJS code
+     // ...
+     ```
 
 ## Bash
 
-Hook scripts need to be POSIX compliant to ensure best compatibility as not everyone has `bash` (e.g. Windows users).
-
-That being said, if your team doesn't use Windows, you can use Bash this way:
-
-```shell
-# .husky/pre-commit
-
-bash << EOF
-# Put your bash script inside
-# ...
-EOF
-```
+* Hook scripts
+  * ' requirements
+    * POSIX compliant / best compatibility -- Reason: ❌NOT everyone has `bash` ❌
+      ```shell
+      # .husky/pre-commit
+      
+      bash << EOF
+      # Put your bash script inside
+      # ...
+      EOF
+      ```
 
 ## Node Version Managers and GUIs
 
-If you're using Git hooks in GUIs with Node installed via a version manager (like `nvm`, `n`, `fnm`, `asdf`, `volta`, etc...), you might face a `command not found` error due to `PATH` environment variable issues.
+* if you're using Git hooks | GUIs / Node installed -- via a -- version manager -> you might face a `command not found` error
+  * Reason: 🧠-- due to -- `PATH` environment variable issues🧠
 
-### Understanding `PATH` and Version Managers
+### Understanding `PATH` & Version Managers
 
-`PATH` is an environment variable containing a list of directories. Your shell searches these directories for commands. If it doesn't find a command, you get a `command not found` message.
-
-Run `echo $PATH` in a shell to view its contents.
-
-Version managers work by:
-1. Adding initialization code to your shell startup file (`.zshrc`, `.bashrc`, etc.), which runs each time you open a terminal.
-2. Downloading Node versions to a directory in your home folder.
-
-For example, if you have two Node versions:
-
-```shell
-~/version-manager/Node-X/node
-~/version-manager/Node-Y/node
-```
-
+* `PATH`
+  * == environment variable / contain a list of directories
+    * your shell -- searches -- these directories / commands
+      * if directory does NOT find a command -> you get a `command not found` message
+    * version managers work --  by --
+      1. add initialization code -- to -- your shell startup file (`.zshrc`, `.bashrc`, etc.)
+         1. runs EACH time / open a terminal
+      2. download Node versions | home folder's directory
+      ```shell
+      ~/version-manager/Node-X/node
+      ~/version-manager/Node-Y/node
+      ```
+* TODO:
 Opening a terminal initializes the version manager, which picks a version (say `Node-Y`) and prepends its path to `PATH`:
 
 ```shell
@@ -195,118 +186,101 @@ echo $PATH
 ~/version-manager/Node-X/:...
 ```
 
-The issue arises because GUIs, launched outside a terminal, don't initialize the version manager, leaving `PATH` without the Node install path. Thus, Git hooks from GUIs often fail.
+The issue arises because GUIs, launched outside a terminal, don't initialize the version manager, leaving `PATH` without the Node install path. 
+Thus, Git hooks from GUIs often fail.
 
 ### Solution
 
-Husky sources `~/.config/husky/init.sh` before each Git hook. Copy your version manager initialization code here to ensure it runs in GUIs.
-
-Example with `nvm`:
-
-```shell
-# ~/.config/husky/init.sh
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-```
-
-Alternatively, if your shell startup file is fast and lightweight, source it directly:
-
-```shell
-# ~/.config/husky/init.sh
-. ~/.zshrc
-```
+* | `~/.config/husky/init.sh`
+  * == BEFORE EACH Git hook
+  * ways
+    * copy your version manager initialization code
+      * Reason: 🧠ensure -- runs | GUIs
+        ```shell
+        # ~/.config/husky/init.sh
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+        ```
+    * if your shell startup file is fast & lightweight -> source it directly
+      ```shell
+      # ~/.config/husky/init.sh
+      . ~/.zshrc
+      ```
 
 ## Manual setup
 
-Git needs to be configured and husky needs to setup files in `.husky/`.
+* husky's configuration
+  * setup files | `.husky/`
 
-Run the `husky` command once in your repo. Ideally, include it in the `prepare` script in `package.json` for automatic execution after each install (recommended).
+* recommendations
+  * run `husky` command | your repo
+  * `"prepare": "husky"`
+    * Reason: 🧠AUTOMATICALLY executed / AFTER EACH install 🧠
 
-::: code-group
+    ```json [npm]
+    {
+      "scripts": {
+        "prepare": "husky" // [!code hl]
+      }
+    }
+    ```
 
-```json [npm]
-{
-  "scripts": {
-    "prepare": "husky" // [!code hl]
-  }
-}
-```
+    ```json [pnpm]
+    {
+      "scripts": {
+        "prepare": "husky" // [!code hl]
+      }
+    }
+    ```
 
-```json [pnpm]
-{
-  "scripts": {
-    "prepare": "husky" // [!code hl]
-  }
-}
-```
+    ```json [yarn]
+    {
+      "scripts": {
+        // Yarn doesn't support prepare script
+        "postinstall": "husky",
+        // Include this if publishing to npmjs.com
+        "prepack": "pinst --disable",
+        "postpack": "pinst --enable"
+      }
+    }
+    ```
 
-```json [yarn]
-{
-  "scripts": {
-    // Yarn doesn't support prepare script
-    "postinstall": "husky",
-    // Include this if publishing to npmjs.com
-    "prepack": "pinst --disable",
-    "postpack": "pinst --enable"
-  }
-}
-```
+    ```json [bun]
+    {
+      "scripts": {
+        "prepare": "husky" // [!code hl]
+      }
+    }
+    ```
 
-```json [bun]
-{
-  "scripts": {
-    "prepare": "husky" // [!code hl]
-  }
-}
-```
-
-:::
-
-Run `prepare` once:
-
-::: code-group
-
-```sh [npm]
-npm run prepare
-```
-
-```sh [pnpm]
-pnpm run prepare
-```
-
-```sh [yarn]
-# Yarn doesn't support `prepare`
-yarn run postinstall
-```
-
-```sh [bun]
-bun run prepare
-```
-
-:::
-
-Create a `pre-commit` file in the `.husky/` directory:
-
-::: code-group
-
-```shell [npm]
-# .husky/pre-commit
-npm test
-```
-
-```shell [pnpm]
-# .husky/pre-commit
-pnpm test
-```
-
-```shell [yarn]
-# .husky/pre-commit
-yarn test
-```
-
-```sh [bun]
-# .husky/pre-commit
-bun test
-```
-
-:::
+  * run `prepare`
+    ```sh [npm]
+    npm run prepare
+    ```
+    ```sh [pnpm]
+    pnpm run prepare
+    ```
+    ```sh [yarn]
+    # Yarn doesn't support `prepare`
+    yarn run postinstall
+    ```
+    ```sh [bun]
+    bun run prepare
+    ```
+  * create a `.husky/pre-commit`
+    ```shell [npm]
+    # .husky/pre-commit
+    npm test
+    ```
+    ```shell [pnpm]
+    # .husky/pre-commit
+    pnpm test
+    ```
+    ```shell [yarn]
+    # .husky/pre-commit
+    yarn test
+    ```
+    ```sh [bun]
+    # .husky/pre-commit
+    bun test
+    ```
