@@ -1,8 +1,6 @@
 # Get started
 
-## Install
-
-::: code-group
+## How to install?
 
 ```shell [npm]
 npm install --save-dev husky
@@ -22,13 +20,12 @@ yarn add --dev pinst
 bun add --dev husky
 ```
 
-:::
-
 ## `husky init` (recommended)
 
-The `init` command simplifies setting up husky in a project. It creates a `pre-commit` script in `.husky/` and updates the `prepare` script in `package.json`. Modifications can be made later to suit your workflow.
-
-::: code-group
+* enables you
+  * 💡simplifies setting up husky | project 💡-- via --
+    * creating a `pre-commit` script | `.husky/`
+    * updates the `prepare` script | `package.json`
 
 ```shell [npm]
 npx husky init
@@ -47,12 +44,10 @@ pnpm exec husky init
 bunx husky init
 ```
 
-:::
-
-
 ## Try it
 
-Congratulations! You've successfully set up your first Git hook with just one command 🎉. Let's test it:
+Congratulations! You've successfully set up your first Git hook with just one command 🎉. 
+Let's test it:
 
 ```shell
 git commit -m "Keep calm and commit"
@@ -63,18 +58,20 @@ git commit -m "Keep calm and commit"
 
 ### Scripting
 
-While most of the time, you'll just run a few `npm run` or `npx` commands in your hooks, you can also script them using POSIX shell for custom workflows.
-
-For example, here's how you can lint your staged files on each commit with only two lines of shell code and no external dependency:
-
-```shell
-# .husky/pre-commit
-prettier $(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g') --write --ignore-unknown
-git update-index --again
-```
-
-_This is a basic but working example, check [lint-staged](https://github.com/lint-staged/lint-staged) if you need more._
+* your hooks' use cases
+  * run `npm run` or `npx` commands
+  * script them -- via -- POSIX shell / CUSTOM workflows
+    * _Example:_ lint your staged files | EACH commit
+        ```shell
+        # .husky/pre-commit
+        prettier $(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g') --write --ignore-unknown
+        git update-index --again
+        ```
+    * see [lint-staged](https://github.com/lint-staged/lint-staged)
 
 ### Disabling hooks
 
-Husky doesn't force Git hooks. It can be globally disabled (`HUSKY=0`) or be opt-in if wanted. See the [How To](how-to) section for manual setup and more information.
+* Husky does NOT force Git hooks 
+* if you want to disable
+  * globally -- via -- `HUSKY=0` 
+* see [manual set-up](how-to)
